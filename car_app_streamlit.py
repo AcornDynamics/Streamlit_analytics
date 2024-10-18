@@ -15,32 +15,42 @@ unique_dates = sorted(df['date'].unique().tolist())  # Get unique dates for the 
 # Sidebar filters
 st.sidebar.header("Filters")
 manuf_filter = st.sidebar.multiselect("Select Manufacturer(s)", unique_manuf, key="manuf_filter")
-model_filter = st.sidebar.multiselect("Select Model(s)", unique_models, key="model_filter")
-x_axis = st.sidebar.selectbox("X-axis", ["Year", "Mileage", "Motor Volume"], key="x_axis")
-y_axis = st.sidebar.selectbox("Y-axis", ["Price"], key="y_axis")
-date_filter = st.sidebar.multiselect("Select date", unique_dates, key="date_filter_top")
-
+date_filter = st.sidebar.multiselect("Select date", unique_dates, key="date_filter_top")  # Date filter at the top
 
 # Apply filters
 def apply_filters(df):
     """Applies the manufacturer, model, and date filters to the dataframe."""
     if manuf_filter:
         df = df[df['Manuf'].isin(manuf_filter)]
-    if model_filter:
-        df = df[df['Model'].isin(model_filter)]
     if date_filter:
         df = df[df['date'].isin(date_filter)]
     return df
 
-
 filtered_df = apply_filters(df)
+
+# --- Metrics ---
+col1, col2, col3 = st.columns(3)
+with col1:
+    total_cars = len(filtered_df)
+    st.metric("Total Cars", total_cars)
+
+with col2:
+    unique_cars = filtered_df['Model'].nunique()
+    st.metric("Unique Car Models", unique_cars)
+
+with col3:
+    avg_price = round(filtered_df['Price'].mean(), 2)
+    st.metric("Average Price", f"{avg_price} €")
+
+# --- Charts ---
 
 # Top Scatter Plot
 st.header("Top Scatter Plot")
-df_clean = filtered_df.replace([float('inf'), -float('inf')], float('nan')).dropna(subset=["Year", "Mileage", "Motor Volume", "Price"])
-fig_scatter = px.scatter(df_clean, x=x_axis, y=y_axis, color="Model",
+df_clean = filtered_df.replace([float('inf'), -float('inf')], float('nan')).dropna(
+    subset=["Year", "Mileage", "Motor Volume", "Price"])
+fig_scatter = px.scatter(df_clean, x="Year", y="Price", color="Model",
                          hover_data=["Model", "Year", "Mileage", "Price"],
-                         title=f"{y_axis} vs. {x_axis} by Car Model")
+                         title="Price vs. Year by Car Model")
 st.plotly_chart(fig_scatter)
 
 # Sunburst Charts side by side
@@ -81,15 +91,13 @@ x_axis_bottom = st.sidebar.selectbox("X-axis (Bottom Scatter)", ["Color", "Price
 y_axis_bottom = st.sidebar.selectbox("Y-axis (Bottom Scatter)", ["Body Type", "Price"], key="y_axis_bottom")
 date_filter_bottom = st.sidebar.multiselect("Select date", unique_dates, key="date_filter_bottom")
 
-
 # Apply filters for bottom scatter plot
 def apply_bottom_filters(df):
     if date_filter_bottom:
         df = df[df['date'].isin(date_filter_bottom)]
     return df
 
-
-filtered_df_bottom = apply_bottom_filters(filtered_df)
+filtered_df_bottom = apply_bottom_filters(filtered_df)  # Apply to already filtered DataFrame
 
 # Bottom Scatter Plot
 st.header("Bottom Scatter Plot")
