@@ -12,21 +12,40 @@ unique_models = sorted(df['Model'].unique().tolist())
 unique_manuf = sorted(df['Manuf'].unique().tolist())  # Get unique manufacturers for the manuf_filter
 unique_dates = sorted(df['date'].unique().tolist())  # Get unique dates for the date filter
 
-# Sidebar filters
-st.sidebar.header("Filters")
-manuf_filter = st.sidebar.multiselect("Select Manufacturer(s)", unique_manuf, key="manuf_filter")
-date_filter = st.sidebar.multiselect("Select date", unique_dates, key="date_filter_top")  # Date filter at the top
+# --- Sidebar with Expanders ---
+with st.sidebar:
+    st.header("Filters")
+    with st.expander("Manufacturer Filter"):
+        manuf_filter = st.multiselect("Select Manufacturer(s)", unique_manuf, key="manuf_filter")
 
-# Apply filters
-def apply_filters(df):
-    """Applies the manufacturer, model, and date filters to the dataframe."""
-    if manuf_filter:
-        df = df[df['Manuf'].isin(manuf_filter)]
-    if date_filter:
-        df = df[df['date'].isin(date_filter)]
-    return df
+    with st.expander("Date Filter (Top Plots)"):
+        date_filter = st.multiselect("Select date", unique_dates, key="date_filter_top")  # Date filter at the top
 
-filtered_df = apply_filters(df)
+    # Apply filters
+    def apply_filters(df):
+        """Applies the manufacturer, model, and date filters to the dataframe."""
+        if manuf_filter:
+            df = df[df['Manuf'].isin(manuf_filter)]
+        if date_filter:
+            df = df[df['date'].isin(date_filter)]
+        return df
+
+    filtered_df = apply_filters(df)
+
+    # Bottom Scatter Plot Filters in Expander
+    with st.expander("Bottom Scatter Plot Filters"):
+        color_axis = st.selectbox("Color Axis", ["Body Type", "Motor Volume"], key="color_axis")
+        x_axis_bottom = st.selectbox("X-axis (Bottom Scatter)", ["Color", "Price"], key="x_axis_bottom")
+        y_axis_bottom = st.selectbox("Y-axis (Bottom Scatter)", ["Body Type", "Price"], key="y_axis_bottom")
+        date_filter_bottom = st.multiselect("Select date", unique_dates, key="date_filter_bottom")
+
+        # Apply filters for bottom scatter plot
+        def apply_bottom_filters(df):
+            if date_filter_bottom:
+                df = df[df['date'].isin(date_filter_bottom)]
+            return df
+
+        filtered_df_bottom = apply_bottom_filters(filtered_df)  # Apply to already filtered DataFrame
 
 # --- Metrics ---
 col1, col2, col3 = st.columns(3)
@@ -83,21 +102,6 @@ st.header("Date Histogram")
 fig_histogram = px.histogram(filtered_df, x="date", color="Model", title="Model Count by Date")
 fig_histogram.update_layout(bargap=0.2)  # Add space between bars
 st.plotly_chart(fig_histogram)
-
-# Bottom Scatter Plot Filters
-st.sidebar.header("Bottom Scatter Plot Filters")
-color_axis = st.sidebar.selectbox("Color Axis", ["Body Type", "Motor Volume"], key="color_axis")
-x_axis_bottom = st.sidebar.selectbox("X-axis (Bottom Scatter)", ["Color", "Price"], key="x_axis_bottom")
-y_axis_bottom = st.sidebar.selectbox("Y-axis (Bottom Scatter)", ["Body Type", "Price"], key="y_axis_bottom")
-date_filter_bottom = st.sidebar.multiselect("Select date", unique_dates, key="date_filter_bottom")
-
-# Apply filters for bottom scatter plot
-def apply_bottom_filters(df):
-    if date_filter_bottom:
-        df = df[df['date'].isin(date_filter_bottom)]
-    return df
-
-filtered_df_bottom = apply_bottom_filters(filtered_df)  # Apply to already filtered DataFrame
 
 # Bottom Scatter Plot
 st.header("Bottom Scatter Plot")
