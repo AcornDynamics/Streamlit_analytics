@@ -113,3 +113,27 @@ fig_scatter_bottom = px.scatter(df_clean_bottom, x=x_axis_bottom, y=y_axis_botto
                                  hover_data=["Model", "Color", "Body Type", "Price"],
                                  title=f"{y_axis_bottom} vs. {x_axis_bottom} by Car Model")
 st.plotly_chart(fig_scatter_bottom)
+
+# --- Top 50 Models DataFrame ---
+st.header("Top 50 Models by Count")
+
+def get_top_models_df(df):
+    """Returns a DataFrame with statistics for the top 50 car models."""
+    top_models = df['Model'].value_counts().head(50).index
+    df_top_models = df[df['Model'].isin(top_models)]
+
+    def most_frequent(series):
+        return series.mode()[0] if not series.empty else None
+
+    df_agg = df_top_models.groupby('Model').agg(
+        Max_Price=('Price', 'max'),
+        Min_Price=('Price', 'min'),
+        Max_Mileage=('Mileage', 'max'),
+        Min_Mileage=('Mileage', 'min'),
+        Most_Popular_Color=('Color', most_frequent),
+        Most_Popular_Motor_Volume=('Motor Volume', most_frequent)
+    )
+    return df_agg
+
+top_models_df = get_top_models_df(filtered_df)  # Use the filtered DataFrame
+st.dataframe(top_models_df)
