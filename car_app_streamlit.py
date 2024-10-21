@@ -126,7 +126,8 @@ def get_top_models_df(df):
     df_top_models = df[df['Model'].isin(top_models)]
 
     def most_frequent(series):
-        return series.mode()[0] if not series.empty else None
+        mode_result = series.mode()
+        return mode_result[0] if not mode_result.empty else None
 
     df_agg = df_top_models.groupby('Model').agg(
         Count=('Model', 'count'),  # Total count for the model
