@@ -12,27 +12,18 @@ unique_models = sorted(df['Model'].unique().tolist())
 unique_manuf = sorted(df['Manuf'].unique().tolist())  # Get unique manufacturers for the manuf_filter
 unique_dates = sorted(df['date'].unique().tolist())  # Get unique dates for the date filter
 
-# --- Sidebar with Expanders ---
-with st.sidebar:
-    st.header("Filters")
+# --- Filters in Expanders on Top ---
+col1, col2, col3 = st.columns(3)
+
+with col1:
     with st.expander("Manufacturer Filter"):
         manuf_filter = st.multiselect("Select Manufacturer(s)", unique_manuf, key="manuf_filter")
 
+with col2:
     with st.expander("Date Filter (Top Plots)"):
         date_filter = st.multiselect("Select date", unique_dates, key="date_filter_top")  # Date filter at the top
 
-    # Apply filters
-    def apply_filters(df):
-        """Applies the manufacturer, model, and date filters to the dataframe."""
-        if manuf_filter:
-            df = df[df['Manuf'].isin(manuf_filter)]
-        if date_filter:
-            df = df[df['date'].isin(date_filter)]
-        return df
-
-    filtered_df = apply_filters(df)
-
-    # Bottom Scatter Plot Filters in Expander
+with col3:
     with st.expander("Bottom Scatter Plot Filters"):
         color_axis = st.selectbox("Color Axis", ["Body Type", "Motor Volume"], key="color_axis")
         x_axis_bottom = st.selectbox("X-axis (Bottom Scatter)", ["Color", "Price"], key="x_axis_bottom")
@@ -45,7 +36,18 @@ with st.sidebar:
                 df = df[df['date'].isin(date_filter_bottom)]
             return df
 
-        filtered_df_bottom = apply_bottom_filters(filtered_df)  # Apply to already filtered DataFrame
+        filtered_df_bottom = apply_bottom_filters(df)  # Apply to already filtered DataFrame
+
+# Apply filters
+def apply_filters(df):
+    """Applies the manufacturer, model, and date filters to the dataframe."""
+    if manuf_filter:
+        df = df[df['Manuf'].isin(manuf_filter)]
+    if date_filter:
+        df = df[df['date'].isin(date_filter)]
+    return df
+
+filtered_df = apply_filters(df)  # Apply to the main DataFrame
 
 # --- Metrics ---
 col1, col2, col3 = st.columns(3)
