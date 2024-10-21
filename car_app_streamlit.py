@@ -134,6 +134,9 @@ def get_top_models_df(df):
         Min_Price=('Price', 'min'),
         Max_Mileage=('Mileage', 'max'),
         Min_Mileage=('Mileage', 'min'),
+        Max_Year=('Year', 'max'),  # Max Year
+        Min_Year=('Year', 'min'),  # Min Year
+        Most_Popular_Year=('Year', most_frequent),  # Most Popular Year
         Most_Popular_Color=('Color', most_frequent),
         Most_Popular_Motor_Volume=('Motor Volume', most_frequent)
     )
@@ -141,5 +144,5 @@ def get_top_models_df(df):
 
 top_models_df = get_top_models_df(filtered_df)  # Use the filtered DataFrame
 
-# Display DataFrame (without line chart column)
+# Display DataFrame
 st.dataframe(top_models_df)
