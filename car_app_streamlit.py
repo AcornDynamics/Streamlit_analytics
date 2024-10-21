@@ -128,10 +128,8 @@ def get_top_models_df(df):
     def most_frequent(series):
         return series.mode()[0] if not series.empty else None
 
-    df_agg = df_top_models.groupby(['Model', 'date']).size().reset_index(name='Count_per_Date')
-    df_agg = df_agg.groupby('Model').agg(
-        Count=('Count_per_Date', 'sum'),  # Total count for the model
-        Count_per_Date=('Count_per_Date', list),  # List of counts per date
+    df_agg = df_top_models.groupby('Model').agg(
+        Count=('Model', 'count'),  # Total count for the model
         Max_Price=('Price', 'max'),
         Min_Price=('Price', 'min'),
         Max_Mileage=('Mileage', 'max'),
@@ -143,14 +141,5 @@ def get_top_models_df(df):
 
 top_models_df = get_top_models_df(filtered_df)  # Use the filtered DataFrame
 
-# --- Line Chart Column ---
-st.dataframe(
-    top_models_df,
-    column_config={
-        "Count_per_Date": st.column_config.LineChartColumn(
-            "Count per Date",
-            width="medium",
-            help="Line chart of count per date for this model"
-        )
-    }
-)
+# Display DataFrame (without line chart column)
+st.dataframe(top_models_df)
