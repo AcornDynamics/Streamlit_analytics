@@ -8,6 +8,9 @@ import streamlit as st
 csv_url = "https://raw.githubusercontent.com/AcornDynamics/Streamlit_analytics/main/df_combined.csv"
 df = pd.read_csv(csv_url)
 
+# Convert 'date' column to datetime
+df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
+
 unique_models = sorted(df['Model'].unique().tolist())
 unique_manuf = sorted(df['Manuf'].unique().tolist())  # Get unique manufacturers for the manuf_filter
 unique_dates = sorted(df['date'].unique().tolist())  # Get unique dates for the date filter
