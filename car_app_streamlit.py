@@ -47,6 +47,30 @@ with st.sidebar:
 
         filtered_df_bottom = apply_bottom_filters(filtered_df)  # Apply to already filtered DataFrame
 
+# --- Function to toggle theme ---
+def toggle_theme():
+    """Toggles between light and dark theme."""
+    if "theme" not in st.session_state:
+        st.session_state.theme = "light"
+    else:
+        st.session_state.theme = "light" if st.session_state.theme == "dark" else "dark"
+
+# --- Button to toggle theme ---
+st.sidebar.button("Toggle Theme", on_click=toggle_theme)
+
+# --- Set the theme based on session state ---
+st.markdown(
+    f"""
+    <style>
+    .stApp {{
+        background-color: {"#f0f2f6" if st.session_state.theme == "light" else "#2E3136"};
+        color: {"#262730" if st.session_state.theme == "light" else "#FFFFFF"};
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # --- Metrics ---
 col1, col2, col3 = st.columns(3)
 with col1:
@@ -108,6 +132,6 @@ st.header("Bottom Scatter Plot")
 df_clean_bottom = filtered_df_bottom.replace([float('inf'), -float('inf')], float('nan')).dropna(
     subset=["Color", "Body Type", "Price"])
 fig_scatter_bottom = px.scatter(df_clean_bottom, x=x_axis_bottom, y=y_axis_bottom, color=color_axis,
-                                hover_data=["Model", "Color", "Body Type", "Price"],
-                                title=f"{y_axis_bottom} vs. {x_axis_bottom} by Car Model")
+                                 hover_data=["Model", "Color", "Body Type", "Price"],
+                                 title=f"{y_axis_bottom} vs. {x_axis_bottom} by Car Model")
 st.plotly_chart(fig_scatter_bottom)
